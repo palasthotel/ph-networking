@@ -32,25 +32,23 @@ extension Endpoint {
 		} else {
 			components.path += "/" + path
 		}
-		if !parameters.isEmpty {
-			components.queryItems = parameters
-				.compactMap { parameter in
-					parameter.query
-				}
-				.map { (key: String, value: Any) in
-					URLQueryItem(name: key, value: "\(value)")
-				}
-		}
-		if !defaultParameters.isEmpty {
-			components.queryItems = defaultParameters
-				.compactMap { parameter in
-					parameter.query
-				}
-				.map { (key: String, value: Any) in
-					URLQueryItem(name: key, value: "\(value)")
-				}
-		}
-
+		
+		components.queryItems = defaultParameters
+			.compactMap { parameter in
+				parameter.query
+			}
+			.map { (key: String, value: Any) in
+				URLQueryItem(name: key, value: "\(value)")
+			}
+		
+		components.queryItems = parameters
+			.compactMap { parameter in
+				parameter.query
+			}
+			.map { (key: String, value: Any) in
+				URLQueryItem(name: key, value: "\(value)")
+			}
+		
 		guard let url = components.url else {
 			print("couldn't create url from \(components)")
 			return nil
