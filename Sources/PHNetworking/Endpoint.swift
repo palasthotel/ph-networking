@@ -41,13 +41,14 @@ extension Endpoint {
 				URLQueryItem(name: key, value: "\(value)")
 			}
 		
-		components.queryItems = parameters
+		components.queryItems? += parameters
 			.compactMap { parameter in
 				parameter.query
 			}
 			.map { (key: String, value: Any) in
 				URLQueryItem(name: key, value: "\(value)")
 			}
+		
 		
 		guard let url = components.url else {
 			print("couldn't create url from \(components)")
