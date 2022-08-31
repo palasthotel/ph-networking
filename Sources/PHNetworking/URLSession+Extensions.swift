@@ -28,7 +28,7 @@ public extension URLSession {
 			completion(.failure(NetworkingError.invalidEndpoint))
 			return
 		}
-		
+				
 		self.dataTask(with: request) { data, response, error in
 			if let error = error {
 				completion(.failure(error))
@@ -69,5 +69,23 @@ public extension URLSession {
 				}
 			}
 		}
+	}
+	
+	@available(iOS 13.0.0, *)
+	func post(to endpoint: Endpoint) async throws -> Data {
+		try await downloadData(from: endpoint)
+	}
+
+	func post(to endpoint: Endpoint, completion: @escaping (Result<Data, Error>) -> Void) {
+		downloadData(from: endpoint, completion: completion)
+	}
+	
+	@available(iOS 13.0.0, *)
+	func post<T: Decodable>(to endpoint: Endpoint, using decoder: JSONDecoder = JSONDecoder()) async throws -> T {
+		try await downloadData(from: endpoint, using: decoder)
+	}
+
+	func post<T: Decodable>(to endpoint: Endpoint, using decoder: JSONDecoder = JSONDecoder(), completion: @escaping (Result<T, Error>) -> Void) {
+		downloadData(from: endpoint, using: decoder, completion: completion)
 	}
 }
