@@ -8,7 +8,11 @@
 import Foundation
 
 
+public typealias Header = (field: String, value: String)
+
 public protocol Endpoint {
+	
+	
 	var baseURL: URL { get }
 	var path: String { get }
 	var httpMethod: HTTPMethod { get }
