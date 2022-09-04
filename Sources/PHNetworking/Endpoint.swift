@@ -58,6 +58,10 @@ extension Endpoint {
 				URLQueryItem(name: key, value: "\(value)")
 			}
 		
+		if components.queryItems?.isEmpty == true {
+			components.queryItems = nil
+		}
+		
 		guard let url = components.url else {
 			print("couldn't create url from \(components)")
 			return nil
