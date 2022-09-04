@@ -14,6 +14,7 @@ public protocol Endpoint {
 	
 	
 	var baseURL: URL { get }
+	var scheme: String { get }
 	var path: String { get }
 	var httpMethod: HTTPMethod { get }
 	var parameters: [EndpointParameter] { get }
@@ -25,6 +26,8 @@ public protocol Endpoint {
 
 public extension Endpoint {
 	var httpMethod: HTTPMethod { .get }
+
+	var scheme: String { "https" }
 }
 
 public extension Endpoint {
@@ -33,15 +36,16 @@ public extension Endpoint {
 
 extension Endpoint {	
 	func constructURLRequest() -> URLRequest? {
-		guard var components = URLComponents(url: baseURL, resolvingAgainstBaseURL: true) else {
-			return nil
-		}
+		var components = URLComponents()
+		components.host = baseURL.absoluteString
+		
 		if path.starts(with: "/") {
 			components.path += path
 		} else {
 			components.path += "/" + path
 		}
 		
+		components.scheme = scheme
 		components.queryItems = defaultParameters
 			.compactMap { parameter in
 				parameter.query
