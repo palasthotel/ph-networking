@@ -11,9 +11,7 @@ import Foundation
 public typealias Header = (field: String, value: String)
 
 public protocol Endpoint {
-	
-	
-	var baseURL: URL { get }
+		
 	var scheme: String { get }
 	var path: String { get }
 	var httpMethod: HTTPMethod { get }
@@ -35,7 +33,7 @@ public extension Endpoint {
 }
 
 extension Endpoint {	
-	func constructURLRequest() -> URLRequest? {
+	func constructURLRequest(baseURL: URL) -> URLRequest? {
 		var components = URLComponents()
 		components.host = baseURL.absoluteString
 		

@@ -8,9 +8,10 @@
 import Foundation
 
 
+// MARK: - GET Data
 public extension URLSession {
 	@available(iOS 13.0.0, *)
-	func downloadData(from endpoint: Endpoint) async throws -> Data {
+	func downloadData(from endpoint: BaseURLEndpoint) async throws -> Data {
 		return try await withCheckedThrowingContinuation { continuation in
 			self.downloadData(from: endpoint) { result in
 				switch result {
@@ -23,12 +24,12 @@ public extension URLSession {
 		}
 	}
 	
-	func downloadData(from endpoint: Endpoint, completion: @escaping (Result<Data, Error>) -> Void) {
-		guard let request = endpoint.constructURLRequest() else {
+	func downloadData(from endpoint: BaseURLEndpoint, completion: @escaping (Result<Data, Error>) -> Void) {
+		guard let request = endpoint.constructURLRequest(baseURL: endpoint.baseURL) else {
 			completion(.failure(NetworkingError.invalidEndpoint))
 			return
 		}
-				
+		
 		self.dataTask(with: request) { data, response, error in
 			if let error = error {
 				completion(.failure(error))
@@ -43,7 +44,7 @@ public extension URLSession {
 	}
 	
 	@available(iOS 13.0.0, *)
-	func downloadData<T: Decodable>(from endpoint: Endpoint, using decoder: JSONDecoder = JSONDecoder()) async throws -> T {
+	func downloadData<T: Decodable>(from endpoint: BaseURLEndpoint, using decoder: JSONDecoder = JSONDecoder()) async throws -> T {
 		return try await withCheckedThrowingContinuation { continuation in
 			self.downloadData(from: endpoint, using: decoder) { (result: Result<T, Error>) in
 				switch result {
@@ -54,7 +55,7 @@ public extension URLSession {
 		}
 	}
 	
-	func downloadData<T: Decodable>(from endpoint: Endpoint, using decoder: JSONDecoder = JSONDecoder(), completion: @escaping (Result<T, Error>) -> Void) {
+	func downloadData<T: Decodable>(from endpoint: BaseURLEndpoint, using decoder: JSONDecoder = JSONDecoder(), completion: @escaping (Result<T, Error>) -> Void) {
 		downloadData(from: endpoint) { result in
 			switch result {
 			case .failure(let error):
@@ -70,22 +71,30 @@ public extension URLSession {
 			}
 		}
 	}
-	
+}
+
+
+// MARK: - POST Data
+public extension URLSession {
 	@available(iOS 13.0.0, *)
-	func post(to endpoint: Endpoint) async throws -> Data {
+	func post(to endpoint: BaseURLEndpoint) async throws -> Data {
 		try await downloadData(from: endpoint)
 	}
-
-	func post(to endpoint: Endpoint, completion: @escaping (Result<Data, Error>) -> Void) {
+	
+	func post(to endpoint: BaseURLEndpoint, completion: @escaping (Result<Data, Error>) -> Void) {
 		downloadData(from: endpoint, completion: completion)
 	}
 	
 	@available(iOS 13.0.0, *)
-	func post<T: Decodable>(to endpoint: Endpoint, using decoder: JSONDecoder = JSONDecoder()) async throws -> T {
+	func post<T: Decodable>(to endpoint: BaseURLEndpoint, using decoder: JSONDecoder = JSONDecoder()) async throws -> T {
 		try await downloadData(from: endpoint, using: decoder)
 	}
-
-	func post<T: Decodable>(to endpoint: Endpoint, using decoder: JSONDecoder = JSONDecoder(), completion: @escaping (Result<T, Error>) -> Void) {
+	
+	func post<T: Decodable>(to endpoint: BaseURLEndpoint, using decoder: JSONDecoder = JSONDecoder(), completion: @escaping (Result<T, Error>) -> Void) {
 		downloadData(from: endpoint, using: decoder, completion: completion)
 	}
 }
+
+
+
+
