@@ -26,13 +26,9 @@ public extension Endpoint {
 	var httpMethod: HTTPMethod { .get }
 
 	var scheme: String { "https" }
-}
 
-public extension Endpoint {
 	var defaultParameters: [EndpointParameter] { [] }
-}
 
-extension Endpoint {	
 	func constructURLRequest(baseURL: URL) -> URLRequest? {
 		var components = URLComponents()
 		components.host = baseURL.absoluteString
@@ -88,10 +84,5 @@ extension Endpoint {
 			urlRequest.addValue(header.value, forHTTPHeaderField: header.field)
 		}
 		return urlRequest
-
 	}
-}
-
-private extension Endpoint {
-	
 }
