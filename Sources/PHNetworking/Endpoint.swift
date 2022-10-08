@@ -11,25 +11,22 @@ import Foundation
 public typealias Header = (field: String, value: String)
 
 public protocol Endpoint {
-		
+	
 	var scheme: String { get }
 	var path: String { get }
 	var httpMethod: HTTPMethod { get }
 	var parameters: [EndpointParameter] { get }
 	var headers: [Header] { get }
 	
-	/// Optional parameters that get sent with every request. This is useful for adding api keys to every request.
-	var defaultParameters: [EndpointParameter] { get }
+	
 }
 
 public extension Endpoint {
 	var httpMethod: HTTPMethod { .get }
 
 	var scheme: String { "https" }
-
-	var defaultParameters: [EndpointParameter] { [] }
-
-	func constructURLRequest(baseURL: URL) -> URLRequest? {
+	
+	func constructURLRequest(baseURL: URL, authentication: Authentication? = nil) -> URLRequest? {
 		var components = URLComponents()
 		components.host = baseURL.absoluteString
 		
@@ -40,13 +37,6 @@ public extension Endpoint {
 		}
 		
 		components.scheme = scheme
-		components.queryItems = defaultParameters
-			.compactMap { parameter in
-				parameter.query
-			}
-			.map { (key: String, value: Any) in
-				URLQueryItem(name: key, value: "\(value)")
-			}
 		
 		components.queryItems? += parameters
 			.compactMap { parameter in
@@ -63,6 +53,10 @@ public extension Endpoint {
 		guard let url = components.url else {
 			print("couldn't create url from \(components)")
 			return nil
+		}
+		
+		if case let .apiKey(apiKey) = authentication, case let .parameter(key, value) = apiKey {
+			components.queryItems?.append(URLQueryItem(name: key, value: value))
 		}
 		
 		var urlRequest = URLRequest(url: url)
@@ -83,6 +77,14 @@ public extension Endpoint {
 		for header in headers {
 			urlRequest.addValue(header.value, forHTTPHeaderField: header.field)
 		}
+		
+		if case let .apiKey(apiKey) = authentication, case let .header(key, value) = apiKey {
+			urlRequest.addValue(value, forHTTPHeaderField: key)
+		}
+		
 		return urlRequest
 	}
 }
+
+
+

@@ -11,3 +11,4 @@ import Foundation
 public protocol BaseURLEndpoint: Endpoint {
 	var baseURL: URL { get }
 }
+
