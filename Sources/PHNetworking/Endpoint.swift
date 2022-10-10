@@ -27,14 +27,8 @@ public extension Endpoint {
 	var scheme: String { "https" }
 	
 	func constructURLRequest(baseURL: URL, authentication: Authentication? = nil) -> URLRequest? {
-		var components = URLComponents()
-		components.scheme = "https"
-		if #available(iOS 16.0, *) {
-			components.host = baseURL.host()
-		} else {
-			components.host = baseURL.host
-		}
-		
+		guard var components = URLComponents(string: baseURL.absoluteString) else { return nil }
+
 		if path.starts(with: "/") {
 			components.path += path
 		} else {
@@ -55,8 +49,8 @@ public extension Endpoint {
 			components.queryItems = nil
 		}
 		
-		guard let url = components.url(relativeTo: baseURL) else {
-			print("couldn't create url from \(components) and \(baseURL)")
+		guard let url = components.url else {
+			print("couldn't create url from \(components)")
 			return nil
 		}
 		
