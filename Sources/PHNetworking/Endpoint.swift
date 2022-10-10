@@ -28,7 +28,6 @@ public extension Endpoint {
 	
 	func constructURLRequest(baseURL: URL, authentication: Authentication? = nil) -> URLRequest? {
 		var components = URLComponents()
-		components.host = baseURL.absoluteString
 		
 		if path.starts(with: "/") {
 			components.path += path
@@ -50,8 +49,8 @@ public extension Endpoint {
 			components.queryItems = nil
 		}
 		
-		guard let url = components.url else {
-			print("couldn't create url from \(components)")
+		guard let url = components.url(relativeTo: baseURL) else {
+			print("couldn't create url from \(components) and \(baseURL)")
 			return nil
 		}
 		
