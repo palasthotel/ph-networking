@@ -28,6 +28,12 @@ public extension Endpoint {
 	
 	func constructURLRequest(baseURL: URL, authentication: Authentication? = nil) -> URLRequest? {
 		var components = URLComponents()
+		components.scheme = "https"
+		if #available(iOS 16.0, *) {
+			components.host = baseURL.host()
+		} else {
+			components.host = baseURL.host
+		}
 		
 		if path.starts(with: "/") {
 			components.path += path
