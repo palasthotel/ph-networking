@@ -11,32 +11,24 @@ import Foundation
 public typealias Header = (field: String, value: String)
 
 public protocol Endpoint {
-	
-	var scheme: String { get }
 	var path: String { get }
 	var httpMethod: HTTPMethod { get }
 	var parameters: [EndpointParameter] { get }
 	var headers: [Header] { get }
-	
-	
 }
 
 public extension Endpoint {
 	var httpMethod: HTTPMethod { .get }
-
-	var scheme: String { "https" }
 	
 	func constructURLRequest(baseURL: URL, authentication: Authentication? = nil) -> URLRequest? {
-		guard var components = URLComponents(string: baseURL.absoluteString) else { return nil }
+		var components = URLComponents()
 
 		if path.starts(with: "/") {
 			components.path += path
 		} else {
 			components.path += "/" + path
 		}
-		
-		components.scheme = scheme
-		
+				
 		components.queryItems? += parameters
 			.compactMap { parameter in
 				parameter.query
@@ -49,7 +41,7 @@ public extension Endpoint {
 			components.queryItems = nil
 		}
 		
-		guard let url = components.url else {
+		guard let url = components.url(relativeTo: baseURL) else {
 			print("couldn't create url from \(components)")
 			return nil
 		}
