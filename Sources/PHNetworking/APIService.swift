@@ -24,15 +24,21 @@ public extension APIService {
 		guard let request = endpoint.constructURLRequest(baseURL: baseURL, authentication: authentication) else {
 			throw NetworkingError.invalidEndpoint
 		}
-				
-		let data = try await URLSession.shared.data(for: request)
-		
-		if let response = data.1 as? HTTPURLResponse, response.statusCode != 200 {
-			throw NetworkingError.status(code: response.statusCode)
+
+		do {
+			let data = try await URLSession.shared.data(for: request)
+
+			if let response = data.1 as? HTTPURLResponse, response.statusCode != 200 {
+				print(response)
+				throw NetworkingError.status(code: response.statusCode)
+			}
+
+			let decoded = try decoder.decode(T.self, from: data.0)
+			return decoded
+		} catch {
+			print("\(error)")
+			throw error
 		}
-		
-		let decoded = try decoder.decode(T.self, from: data.0)
-		return decoded
 	}
 }
 

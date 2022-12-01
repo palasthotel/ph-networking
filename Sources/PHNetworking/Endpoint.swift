@@ -28,7 +28,7 @@ public extension Endpoint {
 		} else {
 			components.path += "/" + path
 		}
-				
+		components.queryItems = []
 		components.queryItems? += parameters
 			.compactMap { parameter in
 				parameter.query
@@ -37,6 +37,10 @@ public extension Endpoint {
 				URLQueryItem(name: key, value: "\(value)")
 			}
 		
+		if case let .apiKey(apiKey) = authentication, case let .parameter(key, value) = apiKey {
+			components.queryItems?.append(URLQueryItem(name: key, value: value))
+		}
+		
 		if components.queryItems?.isEmpty == true {
 			components.queryItems = nil
 		}
@@ -44,10 +48,6 @@ public extension Endpoint {
 		guard let url = components.url(relativeTo: baseURL) else {
 			print("couldn't create url from \(components)")
 			return nil
-		}
-		
-		if case let .apiKey(apiKey) = authentication, case let .parameter(key, value) = apiKey {
-			components.queryItems?.append(URLQueryItem(name: key, value: value))
 		}
 		
 		var urlRequest = URLRequest(url: url)
