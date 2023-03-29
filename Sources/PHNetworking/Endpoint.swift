@@ -54,16 +54,19 @@ public extension Endpoint {
 		urlRequest.httpMethod = httpMethod.description
 		urlRequest.cachePolicy = .reloadIgnoringLocalCacheData
 		
-		let body = parameters
-			.compactMap { param -> String? in
-				guard let body = param.body,
-					  let key = "\(body.key)".addingPercentEncoding(withAllowedCharacters: .urlHostAllowed),
-					  let value = "\(body.value)".addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
-				else { return nil }
-				return "\(key)=\(value)"
-			}
-			.joined(separator: "&")
-		urlRequest.httpBody = body.data(using: .utf8)
+		let bodyParameters = parameters.compactMap { $0.body }
+		if !bodyParameters.isEmpty {
+			let body = bodyParameters
+				.map { (key, value) in
+					if value is String {
+						return "\"\(key)\":\"\(value)\""
+					} else {
+						return "\"\(key)\":\(value)"
+					}
+				}
+				.joined(separator: ",")
+			urlRequest.httpBody = "{\(body)}".data(using: .utf8)
+		}
 		
 		for header in headers {
 			urlRequest.addValue(header.value, forHTTPHeaderField: header.field)
