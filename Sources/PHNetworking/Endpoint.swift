@@ -49,7 +49,7 @@ public extension Endpoint {
 			print("couldn't create url from \(components)")
 			return nil
 		}
-		
+				
 		var urlRequest = URLRequest(url: url)
 		urlRequest.httpMethod = httpMethod.description
 		urlRequest.cachePolicy = .reloadIgnoringLocalCacheData
@@ -73,6 +73,7 @@ public extension Endpoint {
 			urlRequest.addValue(value, forHTTPHeaderField: key)
 		}
 		
+		print("Constructing request '\(urlRequest)'")
 		return urlRequest
 	}
 }
