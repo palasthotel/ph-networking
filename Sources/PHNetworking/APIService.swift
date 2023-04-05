@@ -16,7 +16,7 @@ public protocol APIService {
 public extension APIService {
 	var authentication: Authentication? { nil }
 	
-	func downloadData<T: Decodable>(from endpoint: Endpoint, using decoder: JSONDecoder = .init()) async throws -> T {
+	func performRequest<T: Decodable>(to endpoint: Endpoint, using decoder: JSONDecoder = .init()) async throws -> T {
 		guard let request = endpoint.constructURLRequest(baseURL: baseURL, authentication: authentication) else {
 			throw NetworkingError.invalidEndpoint
 		}
@@ -37,7 +37,7 @@ public extension APIService {
 		}
 	}
 	
-	func postData(to endpoint: Endpoint) async throws {
+	func performRequest(to endpoint: Endpoint, using decoder: JSONDecoder = .init()) async throws {
 		guard let request = endpoint.constructURLRequest(baseURL: baseURL, authentication: authentication) else {
 			throw NetworkingError.invalidEndpoint
 		}
@@ -54,7 +54,6 @@ public extension APIService {
 			throw error
 		}
 	}
-
 }
 
 
