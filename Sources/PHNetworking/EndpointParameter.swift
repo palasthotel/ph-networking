@@ -8,23 +8,13 @@
 import Foundation
 
 
-public enum EndpointParameter {
-	case query(key: String, value: Any)
-	case body(key: String, value: Any)
+public struct EndpointParameter {
+	let key: String
+	let value: Any
 }
 
-extension EndpointParameter {
-	var query: (key: String, value: Any)? {
-		guard case let .query(key, value) = self else {
-			return nil
-		}
-		return (key: key, value: value)
-	}
-	
-	var body: (key: String, value: Any)? {
-		guard case let .body(key, value) = self else {
-			return nil
-		}
-		return (key: key, value: value)
+public extension EndpointParameter {
+	static func query(key: String, value: Any) -> EndpointParameter {
+		EndpointParameter(key: key, value: value)
 	}
 }

@@ -13,12 +13,15 @@ public typealias Header = (field: String, value: String)
 public protocol Endpoint {
 	var path: String { get }
 	var httpMethod: HTTPMethod { get }
+	var body: Codable? { get }
 	var parameters: [EndpointParameter] { get }
 	var headers: [Header] { get }
 }
 
 public extension Endpoint {
 	var httpMethod: HTTPMethod { .get }
+	
+	var body: Codable? { nil }
 	
 	func constructURLRequest(baseURL: URL, authentication: Authentication? = nil) -> URLRequest? {
 		var components = URLComponents()
@@ -30,11 +33,8 @@ public extension Endpoint {
 		}
 		components.queryItems = []
 		components.queryItems? += parameters
-			.compactMap { parameter in
-				parameter.query
-			}
-			.map { (key: String, value: Any) in
-				URLQueryItem(name: key, value: "\(value)")
+			.map { parameter in
+				URLQueryItem(name: parameter.key, value: "\(parameter.value)")
 			}
 		
 		if case let .apiKey(apiKey) = authentication, case let .parameter(key, value) = apiKey {
@@ -54,18 +54,14 @@ public extension Endpoint {
 		urlRequest.httpMethod = httpMethod.description
 		urlRequest.cachePolicy = .reloadIgnoringLocalCacheData
 		
-		let bodyParameters = parameters.compactMap { $0.body }
-		if !bodyParameters.isEmpty {
-			let body = bodyParameters
-				.map { (key, value) in
-					if value is String {
-						return "\"\(key)\":\"\(value)\""
-					} else {
-						return "\"\(key)\":\(value)"
-					}
-				}
-				.joined(separator: ",")
-			urlRequest.httpBody = "{\(body)}".data(using: .utf8)
+		if let body {
+			do {
+				let data = try JSONEncoder().encode(body)
+				urlRequest.httpBody = data
+			} catch {
+				return nil
+//				throw NetworkingError.invalidBodyData
+			}
 		}
 		
 		for header in headers {

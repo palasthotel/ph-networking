@@ -12,14 +12,16 @@ public enum NetworkingError: LocalizedError {
 	case invalidEndpoint
 	case status(code: Int)
 	case emptyData
+	case invalidBodyData
 	case decodingError(message: String)
 
 	public var errorDescription: String? {
 		switch self {
-		case .invalidEndpoint: return "invalid endpoint specified"
-		case .status(let code): return "status code \(code)"
-		case .emptyData: return "returned data was nil"
-		case .decodingError(let message): return "decoding error: \(message)"
+			case .invalidBodyData: return "body data could not be encoded (not codable?)"
+			case .invalidEndpoint: return "invalid endpoint specified"
+			case .status(let code): return "status code \(code)"
+			case .emptyData: return "returned data was nil"
+			case .decodingError(let message): return "decoding error: \(message)"
 		}
 		
 	}
