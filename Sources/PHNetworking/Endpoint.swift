@@ -6,7 +6,7 @@
 //
 
 import Foundation
-
+import OSLog
 
 public typealias Header = (field: String, value: String)
 
@@ -25,7 +25,8 @@ public extension Endpoint {
 	
 	func constructURLRequest(baseURL: URL, authentication: Authentication? = nil) -> URLRequest? {
 		var components = URLComponents()
-
+		let logger = Logger(subsystem: "PHNetworking", category: "Endpoint")
+		
 		if path.starts(with: "/") {
 			components.path += path
 		} else {
@@ -46,7 +47,7 @@ public extension Endpoint {
 		}
 		
 		guard let url = components.url(relativeTo: baseURL) else {
-			print("couldn't create url from \(components)")
+			logger.error("couldn't create url from \(components)")
 			return nil
 		}
 				
@@ -72,7 +73,7 @@ public extension Endpoint {
 			urlRequest.addValue(value, forHTTPHeaderField: key)
 		}
 		
-		print("Constructing request '\(urlRequest)'")
+		logger.info("Constructing request '\(urlRequest)'")
 		return urlRequest
 	}
 }

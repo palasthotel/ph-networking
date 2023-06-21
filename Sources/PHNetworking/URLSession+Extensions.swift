@@ -65,7 +65,6 @@ public extension URLSession {
 					let decoded = try decoder.decode(T.self, from: data)
 					completion(.success(decoded))
 				} catch {
-					print(error)
 					completion(.failure(NetworkingError.decodingError(message: error.localizedDescription)))
 				}
 			}
