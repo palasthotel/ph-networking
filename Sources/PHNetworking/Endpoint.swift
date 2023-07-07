@@ -46,7 +46,14 @@ public extension Endpoint {
 			components.queryItems = nil
 		}
 		
-		guard let url = components.url(relativeTo: baseURL) else {
+		let _baseURL: URL
+		if let baseURLEndpoint = self as? BaseURLEndpoint {
+			_baseURL = baseURLEndpoint.baseURL
+		} else {
+			_baseURL = baseURL
+		}
+		
+		guard let url = components.url(relativeTo: _baseURL) else {
 			logger.error("couldn't create url from \(components)")
 			return nil
 		}
