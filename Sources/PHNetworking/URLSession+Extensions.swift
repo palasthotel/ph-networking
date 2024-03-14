@@ -34,7 +34,7 @@ public extension URLSession {
 			if let error = error {
 				completion(.failure(error))
 			} else if let response = response as? HTTPURLResponse, response.statusCode > 300 {
-				completion(.failure(NetworkingError.status(code: response.statusCode)))
+				completion(.failure(NetworkingError.status(code: response.statusCode, message: nil)))
 			} else if let data = data {
 				completion(.success(data))
 			} else {
