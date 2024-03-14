@@ -17,7 +17,7 @@ public protocol APIService {
 public extension APIService {
 	var authentication: Authentication? { nil }
 	
-	func performRequest<T: Decodable>(to endpoint: Endpoint, using decoder: JSONDecoder = .init()) async throws -> T {
+	func performRequest<T: Decodable>(to endpoint: Endpoint, using decoder: JSONDecoder = .init(), logResponse: Bool = false) async throws -> T {
 		guard let request = endpoint.constructURLRequest(baseURL: baseURL, authentication: authentication) else {
 			throw NetworkingError.invalidEndpoint
 		}
@@ -31,7 +31,7 @@ public extension APIService {
 			if let response = data.1 as? HTTPURLResponse, response.statusCode != 200 {
 				logger.error("\(response)")
 				throw NetworkingError.status(code: response.statusCode, message: String(data: data.0, encoding: .utf8))
-			} else {
+			} else if logResponse {
 				logger.info("\(String(data: data.0, encoding: .utf8) ?? "")")
 			}
 
@@ -42,7 +42,7 @@ public extension APIService {
 		}
 	}
 	
-	func performRequest(to endpoint: Endpoint, using decoder: JSONDecoder = .init()) async throws {
+	func performRequest(to endpoint: Endpoint, using decoder: JSONDecoder = .init(), logResponse: Bool = false) async throws {
 		guard let request = endpoint.constructURLRequest(baseURL: baseURL, authentication: authentication) else {
 			throw NetworkingError.invalidEndpoint
 		}
@@ -55,7 +55,7 @@ public extension APIService {
 			if let response = data.1 as? HTTPURLResponse, response.statusCode != 200 {
 				logger.error("\(response)")
 				throw NetworkingError.status(code: response.statusCode, message: String(data: data.0, encoding: .utf8))
-			} else {
+			} else if logResponse {
 				logger.info("\(String(data: data.0, encoding: .utf8) ?? "")")
 			}
 		} catch {
