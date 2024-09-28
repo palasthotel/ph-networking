@@ -12,12 +12,38 @@ import OSLog
 public protocol APIService {
 	var baseURL: URL { get }
 	var authentication: Authentication? { get }
+	var useDataCache: Bool { get }
 }
 
 public extension APIService {
 	var authentication: Authentication? { nil }
+	var useDataCache: Bool { false }
 	
-	func performRequest<T: Decodable>(to endpoint: Endpoint, using decoder: JSONDecoder = .init(), logResponse: Bool = false) async throws -> T {
+	func performCachedRequest<T: Decodable>(to endpoint: Endpoint, using decoder: JSONDecoder = .init()) async throws -> T? {
+		guard
+			let request = endpoint.constructURLRequest(baseURL: baseURL, authentication: authentication),
+			let url = request.url
+		else {
+			throw NetworkingError.invalidEndpoint
+		}
+		
+		do {
+			guard let cachedData = await DataCache.shared.get(url) else {
+				return nil
+			}
+			
+			let decoded = try decoder.decode(T.self, from: cachedData)
+			return decoded
+		} catch {
+			throw error
+		}
+	}
+
+	func performRequest<T: Decodable>(
+		to endpoint: Endpoint,
+		using decoder: JSONDecoder = .init(),
+		logResponse: Bool = false
+	) async throws -> T {
 		guard let request = endpoint.constructURLRequest(baseURL: baseURL, authentication: authentication) else {
 			throw NetworkingError.invalidEndpoint
 		}
@@ -34,7 +60,11 @@ public extension APIService {
 			} else if logResponse {
 				logger.info("\(String(data: data.0, encoding: .utf8) ?? "")")
 			}
-
+			
+			if useDataCache, let url = request.url {
+				await DataCache.shared.set(data.0, for: url)
+			}
+			
 			let decoded = try decoder.decode(T.self, from: data.0)
 			return decoded
 		} catch {
