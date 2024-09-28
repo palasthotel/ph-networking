@@ -28,12 +28,14 @@ public extension APIService {
 		}
 		
 		do {
-			guard let cachedData = await DataCache.shared.get(url) else {
-				return nil
+			let data: Data
+			if let cachedData = await DataCache.shared.get(url) {
+				data = cachedData
+			} else {
+				data = try await performRequest(to: endpoint, using: decoder)
 			}
 			
-			let decoded = try decoder.decode(T.self, from: cachedData)
-			return decoded
+			return try decoder.decode(T.self, from: data)
 		} catch {
 			throw error
 		}
