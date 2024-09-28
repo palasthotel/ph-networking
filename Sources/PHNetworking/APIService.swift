@@ -19,7 +19,7 @@ public extension APIService {
 	var authentication: Authentication? { nil }
 	var useDataCache: Bool { false }
 	
-	func performCachedRequest<T: Decodable>(to endpoint: Endpoint, using decoder: JSONDecoder = .init()) async throws -> T? {
+	func performCachedRequest<T: Decodable>(to endpoint: Endpoint, using decoder: JSONDecoder = .init()) async throws -> T {
 		guard
 			let request = endpoint.constructURLRequest(baseURL: baseURL, authentication: authentication),
 			let url = request.url
